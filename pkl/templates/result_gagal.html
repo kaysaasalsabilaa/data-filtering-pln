@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil Filter Data Gagal</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Hasil Data Filter (Gagal)</h1>
+
+
+        <!-- Table with Bootstrap styling + DataTables -->
+        <table id="data-table" class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>NAMA GI</th>
+                    <th>WAKTU</th>
+                    <th>JUMLAH KALI (GAGAL)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                <tr>
+                    <td>{{ row['NAMA GI'] }}</td>
+                    <td>{{ row['WAKTU'] }}</td>
+                    <td>{{ row['JUMLAH KALI (GAGAL)'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+
+        <!-- Download & Back Buttons -->
+        <div class="mt-4 d-flex justify-content-between">
+            <a href="/download" class="btn btn-success">Unduh Data dalam Format Excel</a>
+            <button onclick="window.location.href='/'" class="btn btn-secondary">Kembali ke Halaman Utama</button>
+        </div>
+    </div>
+
+
+    <!-- jQuery, DataTables, Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+
+    <script>
+        $(document).ready(function() {
+            $('#data-table').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "lengthMenu": [10, 25, 50, 100], // Pilihan jumlah data per halaman
+                "language": {
+                    "search": "Cari:",
+                    "lengthMenu": "Tampilkan _MENU_ entri",
+                    "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+                    "paginate": {
+                        "first": "Awal",
+                        "last": "Akhir",
+                        "next": "Selanjutnya",
+                        "previous": "Sebelumnya"
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

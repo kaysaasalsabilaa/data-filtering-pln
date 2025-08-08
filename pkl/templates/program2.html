@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rekap Data {{ data_type | safe }}</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css"
+    />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h1 class="text-center">Rekap Data {{ data_type | safe }}</h1>
+
+      <!-- Form Input Data -->
+      <form method="POST" action="/program2">
+        <div class="form-group">
+          <label for="raw_data">Masukkan Data:</label>
+          <textarea
+            name="raw_data"
+            id="raw_data"
+            rows="5"
+            class="form-control"
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="bulan_choice">Pilih Bulan:</label>
+          <select
+            name="bulan_choice"
+            id="bulan_choice"
+            class="form-control"
+            required
+          >
+            <option value="" selected disabled>Pilih Bulan</option>
+            <option value="Januari">Januari</option>
+            <option value="Februari">Februari</option>
+            <option value="Maret">Maret</option>
+            <option value="April">April</option>
+            <option value="Mei">Mei</option>
+            <option value="Juni">Juni</option>
+            <option value="Juli">Juli</option>
+            <option value="Agustus">Agustus</option>
+            <option value="September">September</option>
+            <option value="Oktober">Oktober</option>
+            <option value="November">November</option>
+            <option value="Desember">Desember</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">
+          Simpan ke Rekap
+        </button>
+      </form>
+
+      <!-- 🔥 Tombol Hapus Semua Data -->
+      <div class="mt-4">
+        <form
+          method="POST"
+          action="/hapus_semua_data"
+          onsubmit="return confirm('Apakah Anda yakin ingin menghapus semua data?')"
+        >
+          <button type="submit" class="btn btn-danger">Hapus Semua Data</button>
+        </form>
+      </div>
+
+      <!-- 🔥 Filter Data -->
+      <div class="form-group mt-4">
+        <label for="filter_bulan">Filter Berdasarkan Bulan:</label>
+        <select id="filter_bulan" class="form-control">
+          <option value="">Semua Bulan</option>
+          <option value="Januari">Januari</option>
+          <option value="Februari">Februari</option>
+          <option value="Maret">Maret</option>
+          <option value="April">April</option>
+          <option value="Mei">Mei</option>
+          <option value="Juni">Juni</option>
+          <option value="Juli">Juli</option>
+          <option value="Agustus">Agustus</option>
+          <option value="September">September</option>
+          <option value="Oktober">Oktober</option>
+          <option value="November">November</option>
+          <option value="Desember">Desember</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="search_box">Cari Nama GI:</label>
+        <input
+          type="text"
+          id="search_box"
+          class="form-control"
+          placeholder="Cari Nama GI..."
+        />
+      </div>
+      <!-- 🔥 Form Hapus Banyak Data -->
+      <form
+        method="POST"
+        action="/hapus_banyak"
+        id="hapusBanyakForm"
+        onsubmit="return confirm('Apakah Anda yakin ingin menghapus data yang dipilih?');"
+      >
+        <h2 class="mt-5">Data Rekap Bulanan</h2>
+        <table id="rekapTable" class="table table-bordered">
+          <thead class="thead-dark">
+        <tr>
+          <th><input type="checkbox" id="select_all" /></th>
+          <th>Nama GI</th>
+          <th>Waktu</th>
+          <th>Bulan</th>
+          <th>Tahun</th>
+          <th>Aksi</th>
+        </tr>
+          </thead>
+          <tbody>
+        {% for row in data %}
+        <tr>
+          <td>
+            <input
+          type="checkbox"
+          name="selected_data"
+          value="{{ row[1] }}|{{ row[0] }}"
+            />
+          </td>
+          <td>{{ row[0] }}</td>
+          <td>{{ row[1] }}</td>
+          <td class="bulan-data">{{ row[2] }}</td>
+          <td>{{ row[3] }}</td>
+            <td>
+            <!-- 🔥 Tombol Hapus Satu Data -->
+            <form method="POST" action="/delete" style="display: inline"></form>
+          <input type="hidden" name="unique_waktu" value="{{row[1]}}" />
+          <input type="hidden" name="unique_gi" value="{{row[0]}}" />
+          <input
+            type="hidden"
+            name="data_type"
+            value="{{ data_type | safe }}"
+          />
+          <button type="submit" class="btn btn-sm btn-danger">
+            Hapus
+          </button>
+          <a href="/delete" data-post="">delete</a>
+            </form>
+          </td>
+          
+        </tr>
+        {% endfor %}
+          </tbody>
+        </table>
+
+        <!-- 🔥 Tombol Hapus Banyak Data -->
+        <button type="submit" class="btn btn-warning mt-2">
+          Hapus Data yang Dipilih
+        </button>
+      </form>
+
+      <!-- 🔥 Tombol Kembali ke Halaman Utama dan Download Excel (DIPINDAHKAN KE BAWAH) -->
+      <div class="d-flex justify-content-between mt-4">
+        <a href="/" class="btn btn-secondary">← Kembali ke Halaman Utama</a>
+        <a href="?download=excel" class="btn btn-success">📥 Download Excel</a>
+      </div>
+    </div>
+
+    <script>
+      $(document).ready(function () {
+        var table = $("#rekapTable").DataTable({
+          paging: true,
+          ordering: true,
+          info: true,
+          searching: true,
+          order: [[2, "desc"]],
+        });
+
+        $("#select_all").on("click", function () {
+          $("input[name='selected_data']").prop("checked", this.checked);
+        });
+
+        $("input[name='selected_data']").on("click", function () {
+          if (!$(this).prop("checked")) {
+            $("#select_all").prop("checked", false);
+          }
+        });
+
+        $("#filter_bulan").on("change", function () {
+          var selectedBulan = $(this).val();
+          if (selectedBulan) {
+            table
+              .column(3)
+              .search("^" + selectedBulan + "$", true, false)
+              .draw();
+          } else {
+            table.column(3).search("").draw();
+          }
+        });
+
+        $("#search_box").on("keyup", function () {
+          table.column(1).search($(this).val()).draw();
+        });
+
+        $("#hapusBanyakForm").on("submit", function () {
+          if ($('input[name="selected_data"]:checked').length === 0) {
+            alert("Pilih minimal satu data untuk dihapus!");
+            return false;
+          }
+          return confirm(
+            "Apakah Anda yakin ingin menghapus data yang dipilih?"
+          );
+        });
+      });
+    </script>
+  </body>
+</html>

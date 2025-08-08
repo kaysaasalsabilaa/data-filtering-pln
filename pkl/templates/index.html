@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pilih Program</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-2xl bg-white shadow-lg rounded-lg p-8">
+      <h1 class="text-2xl font-bold text-center text-gray-700 mb-6">
+        Pilih Program yang Ingin Digunakan
+      </h1>
+
+      <form method="POST" action="/process_input" id="programForm">
+        <!-- Input Data -->
+        <div class="mb-4">
+          <label for="raw_data" class="block text-gray-600 font-semibold mb-2">
+            Masukkan Data:
+          </label>
+          <textarea
+            name="raw_data"
+            id="raw_data"
+            rows="6"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
+            required
+          ></textarea>
+        </div>
+
+        <!-- Pilih Program -->
+        <div class="mb-4">
+          <label
+            for="program_choice"
+            class="block text-gray-600 font-semibold mb-2"
+          >
+            Pilih Program:
+          </label>
+          <select
+            name="program_choice"
+            id="program_choice"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
+            required
+          >
+            <option value="filter">Filter</option>
+            <option value="program2">Rekap Data</option>
+            <option value="program3">Pending x Data ROM</option>
+          </select>
+        </div>
+
+        <!-- Pilihan Filter -->
+        <div id="filterChoice" class="mb-4">
+          <label
+            for="data_choice"
+            class="block text-gray-600 font-semibold mb-2"
+          >
+            Pilih Data:
+          </label>
+          <select
+            name="data_choice"
+            id="data_choice"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
+          >
+            <option value="gagal">Data Gagal</option>
+            <option value="sukses">Data Sukses</option>
+          </select>
+        </div>
+
+        <!-- Pilihan Bulan (Hanya Muncul Jika Rekap Data Dipilih) -->
+        <div id="bulanGroup" class="mb-4 hidden">
+          <label
+            for="bulan_choice"
+            class="block text-gray-600 font-semibold mb-2"
+          >
+            Pilih Bulan:
+          </label>
+          <select
+            name="bulan_choice"
+            id="bulan_choice"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
+          >
+            <option value="" selected disabled>Pilih Bulan</option>
+            <option value="Januari">Januari</option>
+            <option value="Februari">Februari</option>
+            <option value="Maret">Maret</option>
+            <option value="April">April</option>
+            <option value="Mei">Mei</option>
+            <option value="Juni">Juni</option>
+            <option value="Juli">Juli</option>
+            <option value="Agustus">Agustus</option>
+            <option value="September">September</option>
+            <option value="Oktober">Oktober</option>
+            <option value="November">November</option>
+            <option value="Desember">Desember</option>
+          </select>
+        </div>
+
+        <!-- Pilihan Jenis Data Rekap -->
+        <div id="rekapChoice" class="mb-4 hidden">
+          <label
+            for="rekap_data_choice"
+            class="block text-gray-600 font-semibold mb-2"
+          >
+            Pilih Jenis Data Rekap:
+          </label>
+          <select
+            name="rekap_data_choice"
+            id="rekap_data_choice"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
+          >
+            <option value="sukses">Data Sukses</option>
+            <option value="gagal">Data Gagal</option>
+            <option value="semua">Semua</option>
+          </select>
+        </div>
+
+        <!-- Tombol Proses -->
+        <button
+          type="submit"
+          class="w-full bg-blue-500 text-white font-semibold p-3 rounded-lg hover:bg-blue-600 transition-all"
+          id="btnProses"
+        >
+          Proses
+        </button>
+      </form>
+    </div>
+
+    <script>
+      document
+        .getElementById("program_choice")
+        .addEventListener("change", function () {
+          let filterChoice = document.getElementById("filterChoice");
+          let bulanGroup = document.getElementById("bulanGroup");
+          let rekapChoice = document.getElementById("rekapChoice");
+          let rekapDataChoice = document.getElementById("rekap_data_choice");
+          let program = this.value;
+          let form = document.getElementById("programForm");
+
+          if (program === "filter") {
+            filterChoice.classList.remove("hidden");
+            bulanGroup.classList.add("hidden");
+            rekapChoice.classList.add("hidden");
+            form.action = "/process_input";
+          } else if (program === "program2") {
+            filterChoice.classList.add("hidden");
+            bulanGroup.classList.remove("hidden");
+            rekapChoice.classList.remove("hidden");
+            form.action = "/rekap-sukses/add";
+            rekapDataChoice.addEventListener("change", function () {
+              form.action =
+                rekapDataChoice.value === "sukses"
+                  ? "/rekap-sukses/add"
+                  : "/rekap-gagal/add";
+            });
+          } else if (program === "program3") {
+            filterChoice.classList.add("hidden");
+            bulanGroup.classList.add("hidden");
+            rekapChoice.classList.add("hidden");
+            form.action = "/program3"; // action yang sesuai untuk program3
+          } else {
+            filterChoice.classList.add("hidden");
+            bulanGroup.classList.add("hidden");
+            rekapChoice.classList.add("hidden");
+            form.action = "/process_input";
+          }
+        });
+    </script>
+  </body>
+</html>

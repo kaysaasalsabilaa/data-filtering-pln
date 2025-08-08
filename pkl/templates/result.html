@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pilih Program</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Pilih Program yang Ingin Digunakan</h1>
+       
+        <form method="POST" action="/process_input" id="programForm">
+            <div class="form-group">
+                <label for="raw_data">Masukkan Data:</label>
+                <textarea name="raw_data" id="raw_data" rows="10" class="form-control" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="program_choice">Pilih Program:</label>
+                <select name="program_choice" id="program_choice" class="form-control" required>
+                    <option value="filter">Filter</option>
+                    <option value="program2">Rekap Data</option> <!-- Nama Program 2 diubah -->
+                    <option value="program3">Program 3</option>
+                </select>
+            </div>
+
+            <div id="filterChoice" style="display:block;">
+                <label for="data_choice">Pilih Data:</label>
+                <select name="data_choice" id="data_choice" class="form-control">
+                    <option value="gagal">Data Gagal</option>
+                    <option value="sukses">Data Sukses</option>
+                </select>
+            </div>
+
+            <!-- Pilihan bulan hanya muncul jika memilih "Rekap Data" -->
+            <div class="form-group" id="bulanGroup" style="display:none;">
+                <label for="bulan_choice">Pilih Bulan:</label>
+                <select name="bulan_choice" id="bulan_choice" class="form-control">
+                    <option value="" selected disabled>Pilih Bulan</option>
+                    <option value="Januari">Januari</option>
+                    <option value="Februari">Februari</option>
+                    <option value="Maret">Maret</option>
+                    <option value="April">April</option>
+                    <option value="Mei">Mei</option>
+                    <option value="Juni">Juni</option>
+                    <option value="Juli">Juli</option>
+                    <option value="Agustus">Agustus</option>
+                    <option value="September">September</option>
+                    <option value="Oktober">Oktober</option>
+                    <option value="November">November</option>
+                    <option value="Desember">Desember</option>
+                </select>
+            </div>
+
+            <!-- Pilihan jenis data dalam Rekap Data -->
+            <div class="form-group" id="rekapChoice" style="display:none;">
+                <label for="rekap_data_choice">Pilih Jenis Data Rekap:</label>
+                <select name="rekap_data_choice" id="rekap_data_choice" class="form-control">
+                    <option value="sukses">Data Sukses</option>
+                    <option value="gagal">Data Gagal</option>
+                    <option value="semua">Semua</option>
+                </select>
+            </div>
+
+            <!-- Tombol Proses dipindahkan ke bawah Pilihan Bulan dan Jenis Data Rekap -->
+            <button type="submit" class="btn btn-primary btn-block" id="btnProses">Proses</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("program_choice").addEventListener("change", function() {
+            let filterChoice = document.getElementById("filterChoice");
+            let bulanGroup = document.getElementById("bulanGroup");
+            let rekapChoice = document.getElementById("rekapChoice");
+            let program = this.value;
+            let form = document.getElementById("programForm");
+
+            if (program === "filter") {
+                filterChoice.style.display = "block";  // Menampilkan pilihan data filter (Gagal/Sukses)
+                bulanGroup.style.display = "none";    // Sembunyikan pilihan bulan
+                rekapChoice.style.display = "none";   // Sembunyikan pilihan rekap
+                form.action = "/process_input";       // Arahkan ke filter
+            } else if (program === "program2") {  // Jika memilih "Rekap Data"
+                filterChoice.style.display = "none";   // Sembunyikan pilihan data filter
+                bulanGroup.style.display = "block";    // Tampilkan pilihan bulan
+                rekapChoice.style.display = "block";   // Tampilkan pilihan jenis rekap
+                form.action = "/program2";            // Ubah action form untuk program 2
+            } else {
+                filterChoice.style.display = "none";   // Sembunyikan pilihan data filter
+                bulanGroup.style.display = "none";     // Sembunyikan pilihan bulan
+                rekapChoice.style.display = "none";    // Sembunyikan pilihan rekap
+                form.action = "/process_input";        // Default ke filter
+            }
+        });
+    </script>
+
+</body>
+</html>
+

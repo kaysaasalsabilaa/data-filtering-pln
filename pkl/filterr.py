@@ -1,5 +1,5 @@
 import traceback
-import json  # Tambahan untuk JSON manual
+import json  
 from datetime import datetime
 from flask_mysqldb import MySQL
 import tempfile
@@ -51,7 +51,7 @@ def filter_data_gagal(data):
 
     for baris in data:
         try:
-            # ✅ Tangkap waktu dengan format yang sesuai
+            # penyesuaian format waktu
             waktu_match = re.search(
                 r'\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2}(?:,\d+)?', baris)
             if waktu_match:
@@ -60,17 +60,17 @@ def filter_data_gagal(data):
                 logging.warning(f"Waktu tidak ditemukan di baris: {baris}")
                 continue  # Lewatkan baris jika tidak ada waktu
 
-            # ✅ Hapus waktu dari string untuk pencarian Nama GI
+            # hapus waktu dari string untuk pencarian Nama GI
             baris_clean = re.sub(
                 r'^\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2}(?:,\d+)?', '', baris).strip()
 
-            # ✅ Pastikan ada kata "NE" tetapi bukan bagian dari kata seperti "Bojonegoro" atau "New"
+            # pastikan ada kata "NE" (bukan bagian dari kata "Bojonegoro" atau "New")
             if not re.search(r'\bNE\b', baris_clean):
                 logging.debug(
                     f"Baris ini tidak mengandung NE, dilewati: {baris_clean}")
                 continue  # Hanya lanjut jika ada "NE" yang berdiri sendiri
 
-            # ✅ Regex untuk menangkap Nama GI sesuai format yang kamu inginkan
+            # cari nama GI sesuai format yang diinginkan
             gi_match = re.search(
                 r'([A-Z][A-Z0-9\s/-]+?)\s+(CB|BI\d+|TRAFO\s?\d+|TRAF0\s?\d+|Tap Position\s?\d+)',
                 baris_clean, re.IGNORECASE
@@ -82,11 +82,11 @@ def filter_data_gagal(data):
                 logging.warning(f"Nama GI tidak dikenali: {baris_clean}")
                 nama_gi = "Tidak Dikenali"
 
-            # ✅ Tambahkan hasil ke list
+           
             hasil_filter.append(nama_gi)
             waktu_filter.append(waktu)
 
-            # ✅ Hitung jumlah kemunculan tiap GI
+            # hitung jumlah kemunculan tiap GI
             if nama_gi in grouped_counts:
                 grouped_counts[nama_gi] += 1
             else:
@@ -96,18 +96,18 @@ def filter_data_gagal(data):
             logging.error(
                 f"Error saat memproses baris: {baris}. Error: {str(e)}")
 
-    # ✅ Jika hasil filter kosong, beri log
+    # jika hasil filter kosong, beri log
     if not hasil_filter:
         logging.error(
             "Tidak ada data yang cocok setelah filtering untuk data gagal!")
 
-    # ✅ Buat DataFrame dengan jumlah kegagalan
+    # Buat DataFrame dengan jumlah kegagalan
     df_gagal = pd.DataFrame({
         "NAMA GI": hasil_filter,
         "WAKTU": waktu_filter
     })
 
-    # ✅ Tambahkan jumlah kali gagal berdasarkan jumlah kemunculan
+    # jumlah kali gagal berdasarkan jumlah kemunculan
     df_gagal["JUMLAH KALI (GAGAL)"] = df_gagal["NAMA GI"].map(grouped_counts)
 
     return df_gagal["NAMA GI"].tolist(), df_gagal["WAKTU"].tolist(), df_gagal["JUMLAH KALI (GAGAL)"].tolist()
@@ -119,7 +119,7 @@ def filter_data_gagal_rekap(data):
 
     for baris in data:
         try:
-            # ✅ Tangkap waktu
+            # waktu
             waktu_match = re.search(
                 r'\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2}', baris)
             if not waktu_match:
@@ -127,17 +127,17 @@ def filter_data_gagal_rekap(data):
                 continue
             waktu = waktu_match.group(0)
 
-            # ✅ Hapus waktu dari string
+            # Hapus waktu dari string
             baris_clean = re.sub(
                 r'^\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2}', '', baris).strip()
 
-            # ✅ Pastikan ada kata "NE" yang berdiri sendiri
+            # Pastikan ada kata "NE" 
             if not re.search(r'\bNE\b', baris_clean):
                 logging.debug(
                     f"Baris ini tidak mengandung NE yang berdiri sendiri, dilewati: {baris_clean}")
                 continue  # Skip langsung jika tidak ada "NE" yang valid
 
-            # ✅ Regex untuk menangkap Nama GI
+            # Regex untuk Nama GI
             gi_match = re.search(
                 r'([A-Z][A-Z0-9\s/-]+?)\s+(CB|BI\d+|TRAFO\s?\d+|TRAF0\s?\d+|Tap Position\s?\d+)',
                 baris_clean, re.IGNORECASE
@@ -149,7 +149,6 @@ def filter_data_gagal_rekap(data):
                 logging.warning(f"Nama GI tidak dikenali: {baris_clean}")
                 continue  # Jika tidak ada nama GI yang valid, skip juga
 
-            # ✅ Tambahkan hasil ke list
             hasil_filter.append(nama_gi)
             waktu_filter.append(waktu)
 
@@ -165,7 +164,6 @@ def filter_data_sukses_rekap(data):
     grouped_status = {}
 
     for baris in data:
-        # ✅ **Tangkap Nama GI sesuai format yang telah disepakati**
         nama_gi_match = re.search(
             r'([A-Z][A-Z0-9\s/-]+?)\s+(CB|BI\d+|TRAFO\s?\d+|TRAF0\s?\d+)',
             baris, re.IGNORECASE
@@ -176,41 +174,41 @@ def filter_data_sukses_rekap(data):
         else:
             nama_gi = "Tidak Dikenali"
 
-        # ✅ **Ambil status open/close/tap position**
+        # Ambil status open/close/tap position
         status_list = []
         if "open" in baris.lower():
             status_list.append("open")
         if "close" in baris.lower():
             status_list.append("close")
 
-        # ✅ **Tangkap Tap Position jika ada**
+        #  Tap Position jika ada
         tap_position_match = re.search(
             r'Tap Position\s?(\d+)', baris, re.IGNORECASE)
         if tap_position_match:
             status_list.append(f"Tap Position {tap_position_match.group(1)}")
 
-        # ✅ **Gabungkan semua status ke KET dalam urutan waktu**
+        # Gabungkan semua status ke KET dalam urutan waktu
         ket = "; ".join(status_list) if status_list else "Tidak Ada Status"
 
-        # ✅ **Kelompokkan data berdasarkan Nama GI**
+        # Kelompokkan data berdasarkan Nama GI
         if nama_gi in grouped_status:
             grouped_status[nama_gi].append(ket)
         else:
             grouped_status[nama_gi] = [ket]
 
-        # ✅ **Tambahkan hasil filter**
+        # Tambahkan hasil filter
         hasil_filter.append(nama_gi)
 
-        # ✅ **Ambil waktu**
+        # Ambil waktu
         waktu_match = re.search(
             r'\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2}', baris)
         waktu_filter.append(waktu_match.group(
             0) if waktu_match else "01/01/1000 01:01:01")
 
-        # ✅ **Tambahkan ke daftar KET**
+        # Tambahkan ke daftar KET
         ket_list.append(ket)
 
-    # ✅ **Tentukan nilai INFO SUKSES berdasarkan isi KET**
+    # Tentukan nilai INFO SUKSES berdasarkan isi KET
     for i, gi in enumerate(hasil_filter):
         # Ambil semua status yang pernah muncul
         status_set = set(grouped_status.get(gi, []))
@@ -249,20 +247,20 @@ def process_input():
                 hasil_filter, waktu_filter, jumlah_kali_gagal = filter_data_gagal(
                     data_lines)
 
-                # ✅ Buat DataFrame untuk Data Gagal
+                # Buat DataFrame untuk Data Gagal
                 df_gagal = pd.DataFrame({
                     "NAMA GI": hasil_filter,
                     "WAKTU": waktu_filter,
                     "JUMLAH KALI (GAGAL)": jumlah_kali_gagal
                 })
 
-                # ✅ Grouping berdasarkan NAMA GI
+                # Grouping berdasarkan NAMA GI
                 df_gagal_grouped = df_gagal.groupby('NAMA GI').agg({
                     'WAKTU': lambda x: '; '.join(set(filter(None, x))),
                     'JUMLAH KALI (GAGAL)': 'first'
                 }).reset_index()
 
-                # ✅ Simpan file hasil filter
+                # Simpan file hasil filter
                 file_path = get_temp_filename()
                 df_gagal_grouped.to_excel(file_path, index=False)
                 # Simpan path file untuk download
@@ -277,7 +275,7 @@ def process_input():
                 hasil_filter, waktu_filter, info_sukses_filter, ket_filter = filter_data_sukses(
                     data_lines)
 
-                # ✅ Buat DataFrame untuk Data Sukses
+                # Buat DataFrame untuk Data Sukses
                 df_sukses = pd.DataFrame({
                     "NAMA GI": hasil_filter,
                     "WAKTU": waktu_filter,
@@ -285,7 +283,7 @@ def process_input():
                     "KET": ket_filter
                 })
 
-                # ✅ Grouping Data Sukses
+                # Grouping Data Sukses
                 df_sukses_grouped = df_sukses.groupby('NAMA GI').agg({
                     'WAKTU': lambda x: '; '.join(set(filter(None, x))),
                     'INFO SUKSES': lambda x: '; '.join(set(filter(None, x))),
@@ -295,7 +293,7 @@ def process_input():
                 df_sukses_grouped['JUMLAH KALI (SUKSES)'] = df_sukses.groupby(
                     'NAMA GI').size().reset_index(name='count')['count']
 
-                # ✅ Simpan file hasil filter
+                # Simpan file hasil filter
                 file_path = get_temp_filename()
                 df_sukses_grouped.to_excel(file_path, index=False)
                 # Simpan path file untuk download
@@ -318,7 +316,6 @@ def filter_data_sukses(data):
     grouped_status = {}
 
     for baris in data:
-        # ✅ **Tangkap Nama GI sesuai format yang telah disepakati**
         nama_gi_match = re.search(
             r'([A-Z][A-Z0-9\s/-]+?)\s+(CB|BI\d+|TRAFO\s?\d+|TRAF0\s?\d+)',
             baris, re.IGNORECASE
@@ -329,40 +326,40 @@ def filter_data_sukses(data):
         else:
             nama_gi = "Tidak Dikenali"
 
-        # ✅ **Ambil status open/close/tap position**
+        # Ambil status open/close/tap position
         status_list = []
         if "open" in baris.lower():
             status_list.append("open")
         if "close" in baris.lower():
             status_list.append("close")
 
-        # ✅ **Tangkap Tap Position jika ada**
+        # Tap Position jika ada
         tap_position_match = re.search(
             r'Tap Position\s?(\d+)', baris, re.IGNORECASE)
         if tap_position_match:
             status_list.append(f"Tap Position {tap_position_match.group(1)}")
 
-        # ✅ **Gabungkan semua status ke KET dalam urutan waktu**
+        # Gabungkan semua status ke KET dalam urutan waktu
         ket = "; ".join(status_list) if status_list else "Tidak Ada Status"
 
-        # ✅ **Kelompokkan data berdasarkan Nama GI**
+        # Kelompokkan data berdasarkan Nama GI
         if nama_gi in grouped_status:
             grouped_status[nama_gi].append(ket)
         else:
             grouped_status[nama_gi] = [ket]
 
-        # ✅ **Tambahkan hasil filter**
+        # Tambahkan hasil filter
         hasil_filter.append(nama_gi)
 
-        # ✅ **Ambil waktu**
+        # Ambil waktu
         waktu_match = re.search(
             r'\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2}(?:,\d+)?', baris)
         waktu_filter.append(waktu_match.group(0) if waktu_match else "")
 
-        # ✅ **Tambahkan ke daftar KET**
+        # Tambahkan ke daftar KET
         ket_list.append(ket)
 
-    # ✅ **Tentukan nilai INFO SUKSES berdasarkan isi KET**
+    # Tentukan nilai INFO SUKSES berdasarkan isi KET
     for i, gi in enumerate(hasil_filter):
         # Ambil semua status yang pernah muncul
         status_set = set(grouped_status.get(gi, []))
@@ -409,7 +406,6 @@ def getRekapSukses():
     data = cur.fetchall()
     cur.close()
 
-    # ✅ 🔥 Tambahkan fitur **Download Excel**
     if request.args.get("download") == "excel":
         try:
             # Buat DataFrame dari hasil query
@@ -454,7 +450,6 @@ def getRekapGagal():
     data = cur.fetchall()
     cur.close()
 
-    # ✅ 🔥 Tambahkan fitur **Download Excel**
     if request.args.get("download") == "excel":
         try:
             # Buat DataFrame dari hasil query
@@ -540,21 +535,21 @@ def addRekapSukses():
 @app.route('/rekap-gagal/add', methods=['POST'])
 def addRekapGagal():
     try:
-        # 🔹 Ambil data dari form
+        # Ambil data dari form
         bulan = request.form.get('bulan_choice')
         raw_data = request.form.get('raw_data', '').splitlines()
 
-        # 🔹 Proses data
+        # Proses data
         hasil_filter, waktu_filter,  = filter_data_gagal_rekap(
             raw_data)
 
-        # 🔹 Format ulang waktu
+        # Format ulang waktu
         waktu_filter = [datetime.strptime(
             w, "%d/%m/%Y %H:%M:%S").strftime("%Y-%m-%d %H:%M:%S") for w in waktu_filter]
         tahun_filter = [datetime.strptime(
             w, "%Y-%m-%d %H:%M:%S").strftime("%Y") for w in waktu_filter]
 
-        # 🔹 Simpan ke database
+        # Simpan ke database
         cur = mysql.connection.cursor()
         cur.execute("""
     CREATE TABLE IF NOT EXISTS rekap_data_gagal(
@@ -871,22 +866,21 @@ def program3():
                     time_range = ""
                     keterangan = ""
 
-                # **Tangani keterangan jika dalam tanda kurung**
+                # Tangani keterangan jika dalam tanda kurung
                 keterangan = re.sub(r'^\((.*?)\)$', r'\1', keterangan).strip()
 
-                # **Pastikan keterangan mencakup waktu dan info tambahan**
+                # Pastikan keterangan mencakup waktu dan info tambahan
                 if not keterangan:
                     keterangan = time_range
                 else:
                     keterangan = f"{time_range} {keterangan}".strip()
 
-                # **Pembersihan teks peralatan**
+                # Pembersihan teks peralatan
                 equipment = equipment.replace("#", " ")  # Hapus simbol #
 
-                # **Tambahkan angka 500, 150, 70, 20 sebagai keyword biasa**
                 number_keywords = ["500", "150", "70", "20"]
 
-                # **Cari keyword yang cocok dari daftar lokasi dan angka**
+                # Cari keyword yang cocok dari daftar lokasi dan angka
                 location_keywords = [kw for kw in keywords if kw in location] + [num for num in number_keywords if num in location]
                 equipment_keywords = [kw for kw in keywords if kw in equipment] + [num for num in number_keywords if num in equipment]
 
@@ -900,15 +894,15 @@ def program3():
                 print(f"Processed Location Keywords: {location_keywords}")
                 print(f"Processed Equipment Keywords: {equipment_keywords}")
 
-                # **Pencocokan Parsial untuk Kata Pertama di Data Rekap**
+                # Pencocokan untuk Kata Pertama di Data Rekap
                 matched_rekap_data = []
                 for rekap_entry in rekap_data:
                     rekap_string = rekap_entry[1]
 
-                    # **Ambil kata pertama dari data rekap**
+                    # Ambil kata pertama dari data rekap
                     first_word_rekap = rekap_string.split()[0]
 
-                    # **Ambil semua keyword yang cocok dalam rekap data**
+                    # Ambil semua keyword yang cocok dalam rekap data
                     rekap_keywords = [kw for kw in keywords if kw in rekap_string] + [num for num in number_keywords if num in rekap_string]
 
                     # Gunakan mapping keyword
@@ -919,23 +913,23 @@ def program3():
                     print(f"Processed Rekap: {rekap_string}")
                     print(f"Processed Rekap Keywords: {rekap_keywords}")
 
-                    # **Cek apakah ada minimal 1 keyword dari lokasi yang cocok dengan kata pertama rekap**
+                    # Cek apakah ada minimal 1 keyword dari lokasi yang cocok dengan kata pertama rekap
                     first_word_match = any(kw in first_word_rekap for kw in location_keywords)
 
-                    # **Cek apakah ada minimal 1 keyword yang cocok di peralatan**
+                    # Cek apakah ada minimal 1 keyword yang cocok di peralatan
                     equipment_match = any(kw in rekap_keywords for kw in equipment_keywords)
 
-                    # **Cek apakah ada minimal 2 angka yang sama (boleh di lokasi atau peralatan)**
+                    # Cek apakah ada minimal 2 angka yang sama (di lokasi atau peralatan)
                     matched_numbers = set(rekap_keywords) & set(number_keywords)
                     number_match = len(matched_numbers) >= 2
 
-                    # **Syarat Pencocokan**
+                    # Syarat Pencocokan
                     if first_word_match and equipment_match and number_match:
                         if rekap_entry[1] not in processed_rekap_names:
                             matched_rekap_data.append(rekap_entry)
                             processed_rekap_names.add(rekap_entry[1])
 
-                # **Gabungkan hasil yang cocok dengan data input di baris yang sama**
+                # Gabungkan hasil yang cocok dengan data input di baris yang sama
                 for rekap_entry in matched_rekap_data:
                     final_entry = {
                         'rekap': rekap_entry[1],
